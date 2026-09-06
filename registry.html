@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAST Advanced Referral &amp; Phenotype Tracking System</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a365d">
+<style>
+:root{
+  --primary:#1a365d;
+  --secondary:#2b6cb0;
+  --bg:#f7fafc;
+  --border:#e2e8f0;
+  --muted:#718096;
+  --danger:#c53030;
+  --warning:#b7791f;
+  --success:#276749;
+}
+*{box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:var(--bg);margin:0;padding:20px;color:#2d3748;}
+.header{text-align:center;margin-bottom:20px;}
+.header h1{margin:0;color:var(--primary);font-size:24px;}
+.header p{margin:5px 0 0;color:var(--muted);font-size:13px;}
+.dashboard-layout{max-width:1300px;margin:0 auto;display:grid;grid-template-columns:1.1fr 2fr;gap:25px;}
+.panel{background:#fff;border-radius:12px;padding:20px;box-shadow:0 4px 6px rgba(0,0,0,.02);border:1px solid var(--border);}
+.full-width{grid-column:1/-1;}
+h2{margin-top:0;color:var(--primary);font-size:18px;border-bottom:2px solid #edf2f7;padding-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+h3{margin:15px 0 5px;color:var(--secondary);font-size:13px;text-transform:uppercase;letter-spacing:.5px;}
+h4{font-size:11px;color:var(--secondary);margin:15px 0 5px;text-transform:uppercase;}
+label{font-weight:bold;display:block;margin-top:10px;font-size:12px;color:#4a5568;}
+input[type=text],input[type=number],select,textarea{width:100%;padding:8px 10px;margin-top:4px;border:1px solid #cbd5e0;border-radius:6px;background:#f8fafc;font-size:13px;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
+.checkbox-list{background:#f8fafc;border:1px solid #cbd5e0;border-radius:6px;padding:10px;margin-top:4px;}
+.checkbox-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;}
+.checkbox-item input{transform:scale(1.1);margin:0;}
+.checkbox-item.critical{background:#fff5f5;border:1px solid #feb2b2;padding:6px;border-radius:4px;}
+button{width:100%;background:var(--secondary);color:#fff;border:none;padding:12px;margin-top:15px;font-size:14px;font-weight:bold;border-radius:6px;cursor:pointer;}
+button:hover{background:#2b4c7e;}
+.search-box{background:#ebf8ff;border:1px solid #bee3f8;padding:15px;border-radius:8px;margin-bottom:15px;}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
+th{background:#edf2f7;color:#4a5568;padding:10px;text-align:left;border-bottom:2px solid #cbd5e0;}
+td{padding:10px;border-bottom:1px solid #edf2f7;vertical-align:top;}
+.badge{padding:3px 6px;border-radius:4px;font-weight:bold;font-size:10px;text-transform:uppercase;display:inline-block;}
+.badge-alert{background:#fed7d7;color:#9b2c2c;}
+.badge-ok{background:#c6f6d5;color:#22543d;}
+.badge-critical{background:#742a2a;color:#fff;}
+.record-card{background:#f7fafc;padding:12px;border-radius:6px;margin-bottom:8px;border-left:4px solid var(--secondary);font-size:12px;line-height:1.5;}
+canvas{background:#f8fafc;border:1px solid var(--border);border-radius:8px;margin-top:10px;width:100%;height:auto;display:block;}
+.status-line{font-size:11px;color:#718096;text-align:center;margin-top:8px;}
+.patient-card{border:1px solid #cbd5e0;border-radius:8px;padding:15px;margin-bottom:15px;background:#fff;}
+.small-btn{width:auto;margin:0;padding:7px 10px;background:#e2e8f0;color:#4a5568;font-size:11px;}
+.danger-btn{background:#c53030;color:#fff;}
+.danger-btn:hover{background:#9b2c2c;}
+.live-preview{background:#f0fff4;border:2px solid #9ae6b4;border-radius:8px;padding:12px;margin-top:12px;font-size:12px;line-height:1.6;display:none;}
+.live-preview.has-data{display:block;}
+.live-preview.urgent{background:#fff5f5;border-color:#fc8181;}
+.live-preview .phenotype-line{font-weight:bold;color:#1a365d;font-size:13px;}
+.live-preview .triage-line{font-weight:bold;margin-top:4px;}
+.data-warning{background:#fffaf0;border:1px solid #f6ad55;color:#7b341e;font-size:11px;padding:8px 10px;border-radius:6px;margin-top:8px;}
+@media(max-width:1000px){.dashboard-layout{grid-template-columns:1fr;}}
+@media(max-width:600px){
+  body{padding:10px;}
+  .grid-2,.grid-3{grid-template-columns:1fr;}
+  .header h1{font-size:20px;}
+  button, .small-btn{min-height:44px;font-size:14px;}
+  .small-btn{padding:10px 14px;}
+  input[type=text],input[type=number],select,textarea{min-height:42px;font-size:14px;}
+  .checkbox-item input{transform:scale(1.3);}
+  td, th{padding:12px 8px;}
+}
+.section-toggle{
+  width:100%;background:#edf2f7;color:#1a365d;border:1px solid var(--border);
+  padding:14px 16px;font-size:15px;font-weight:bold;border-radius:8px;
+  display:flex;justify-content:space-between;align-items:center;cursor:pointer;margin:0;
+}
+.section-toggle:hover{background:#e2e8f0;}
+.chevron{transition:transform .2s ease;font-size:12px;}
+.chevron.open{transform:rotate(180deg);}
+.collapsible-body{display:none;padding-top:15px;}
+.collapsible-body.open{display:block;}
+.undo-toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:#1a365d;color:#fff;padding:12px 20px;border-radius:8px;
+  font-size:13px;display:flex;align-items:center;gap:14px;z-index:999;
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+.undo-toast button{width:auto;margin:0;padding:6px 12px;background:#2b6cb0;font-size:12px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div style="display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;">
+    <svg width="48" height="48" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="4" width="92" height="92" rx="20" fill="#1a365d"/>
+      <polyline points="22,68 40,50 54,60 78,30" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="78" cy="30" r="7" fill="#2b6cb0" stroke="#ffffff" stroke-width="3"/>
+    </svg>
+    <h1 style="margin:0;">FAST Referral Facility Management System</h1>
+  </div>
+  <p>Secondary Evaluation, Clinical Phenotyping &amp; Long-Term Treatment Ledger</p>
+  <p style="font-size:10px;color:#a0aec0;text-align:center;margin-top:8px;">&copy; 2026 [Shukurana Sulaiman Adam]. Anthropometric reference data: WHO Child Growth Standards.</p>
+  <div id="connectivityBadge" style="display:inline-block;margin-top:8px;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:bold;"></div>
+</div>
+<div id="backupBanner" class="data-warning" style="max-width:1100px;margin:0 auto 15px;display:none;"></div>
+<div class="panel" style="max-width:1100px;margin:0 auto 18px;">
+  <h2>Facility &amp; Reporting Information</h2>
+  <div class="grid-3">
+    <div><label for="facilityName">Facility Name</label><input type="text" id="facilityName" placeholder="e.g., Dutse General Hospital"></div>
+    <div><label for="facilityLocation">Facility Location</label><input type="text" id="facilityLocation" placeholder="e.g., Dutse, Jigawa State"></div>
+    <div><label for="healthWorkerName">Responsible Health Worker</label><input type="text" id="healthWorkerName" placeholder="e.g., Dr. Ibrahim Musa"></div>
+  </div>
+  <div class="grid-3">
+    <div><label for="idPrefix">Triage ID Prefix (optional)</label><input type="text" id="idPrefix" placeholder="e.g., DUTSE or KANO"></div>
+  </div>
+  <p class="status-line" style="text-align:left;margin-bottom:0;">These details are saved locally on this device and automatically included in generated reports.</p>
+</div>
+<div class="dashboard-layout">
+  <div class="panel">
+    <h2>Admission &amp; Visit Intake</h2>
+    <label for="childId">FAST Triage ID / Serial Number</label>
+    <input type="text" id="childId" placeholder="e.g., KANO-001">
+    <button type="button" id="newIdBtn" class="small-btn" style="width:auto;margin-top:5px;background:#e2e8f0;color:#4a5568;">Generate Next ID</button>
+    <label for="childName">Child Full Name</label>
+    <input type="text" id="childName" placeholder="e.g., Aliyu Ibrahim">
+    <div class="grid-3">
+      <div>
+        <label for="sex">Sex</label>
+        <select id="sex"><option value="Male">Male</option><option value="Female">Female</option></select>
+      </div>
+      <div><label for="dob">Date of Birth</label><input type="date" id="dob"></div>
+      <div><label for="assessmentDate">Assessment Date</label><input type="date" id="assessmentDate"></div>
+    </div>
+    <label for="recordedBy">Visit Recorded By</label>
+    <input type="text" id="recordedBy" placeholder="e.g., Nurse Aisha Bello">
+    <h3>1. Anthropometric Entry (Biometrics)</h3>
+    <p style="font-size:11px;color:#718096;margin:0 0 5px">Enter exact physical measurements — phenotype computes automatically as you type:</p>
+    <div class="grid-3">
+      <div><label for="weight">Weight (kg)</label><input type="number" id="weight" step="0.1" min="0"></div>
+      <div><label for="height">Height (cm)</label><input type="number" id="height" step="0.1" min="0"></div>
+      <div><label for="muac">Current MUAC (mm)</label><input type="number" id="muac" min="0"></div>
+    </div>
+    <div class="checkbox-item critical" style="margin-top:10px;">
+      <input type="checkbox" id="edema">
+      <span><strong>Bilateral Pitting Edema present</strong> (any grade — automatically classifies as Severe Acute Malnutrition regardless of anthropometry)</span>
+    </div>
+    <div class="checkbox-item" style="margin-top:6px;">
+      <input type="checkbox" id="lowBirthWeight">
+      <span>Low Birth Weight (&lt;2.5kg at birth)</span>
+    </div>
+    <div id="livePreview" class="live-preview">
+      <div class="phenotype-line" id="previewPhenotype"></div>
+      <div id="previewScores"></div>
+      <div class="triage-line" id="previewTriage"></div>
+    </div>
+    <div id="dataWarning" class="data-warning" style="display:none;">
+      WHO reference tables are not yet loaded — Z-scores cannot be computed until WHO_LMS_DATA is filled in. See comments in the script.
+    </div>
+    <div id="deteriorationWarning" class="data-warning" style="display:none;background:#fff5f5;border-color:#fc8181;color:#742a2a;">
+    </div>
+    <div id="immunizationNote" class="data-warning" style="display:none;background:#ebf8ff;border-color:#90cdf4;color:#2c5282;">
+    </div>
+    <div id="plausibilityWarning" class="data-warning" style="display:none;background:#fffaf0;border-color:#dd6b20;color:#7c2d12;">
+    </div>
+    <div id="feedingAgeWarning" class="data-warning" style="display:none;background:#fef2f2;border-color:#f56565;color:#822727;">
+    </div>
+    <div id="rutfWarning" class="data-warning" style="display:none;background:#fffaf0;border-color:#dd6b20;color:#7c2d12;">
+    </div>
+      <h3>2. Infant &amp; Young Child Feeding
+      <button type="button" id="copyLastVisitBtn" class="small-btn" style="width:auto;display:inline-block;margin:0 0 0 8px;padding:4px 8px;font-size:10px;background:#e2e8f0;color:#4a5568;">Copy from Last Visit</button>
+    </h3>
+    <label for="breastfeedingStatus">Breastfeeding Status</label>
+    <select id="breastfeedingStatus">
+      <option value="Exclusive">Exclusive Breastfeeding (0-6 months)</option>
+      <option value="Mixed">Mixed Feeding (breastmilk + other foods/liquids)</option>
+      <option value="NonBreastfed">Not Currently Breastfed</option>
+      <option value="NotApplicable">Not Applicable (weaned, ≥24 months)</option>
+    </select>
+    <h3>3. Active Infection Comorbidities</h3>
+    <div class="checkbox-list">
+      <div class="checkbox-item"><input type="checkbox" class="inf-check" value="Diarrhea"><span>Watery Diarrhea / Gastroenteritis</span></div>
+      <div class="checkbox-item"><input type="checkbox" class="inf-check" value="Respiratory"><span>ARI / Cough / Pneumonia Symptoms</span></div>
+      <div class="checkbox-item"><input type="checkbox" class="inf-check" value="Malaria"><span>Confirmed Malaria / Severe Fever</span></div>
+      <div class="checkbox-item"><input type="checkbox" class="inf-check" value="AnemiaClinical"><span>Clinical Pale Conjunctiva / Severe Anemia</span></div>
+    </div>
+    <h3>4. Laboratory, Logistics &amp; Immunization</h3>
+    <div class="grid-2">
+      <div><label for="hgb">Hemoglobin Level (g/dL)</label><input type="number" id="hgb" step="0.1" min="0"></div>
+      <div><label for="rutfCartons">RUTF Cartons Dispensed</label><input type="number" id="rutfCartons" min="0"></div>
+    </div>
+    <label for="immunizationStatus">Immunization Status</label>
+    <select id="immunizationStatus">
+      <option value="UpToDate">Up to Date</option>
+      <option value="Incomplete">Incomplete</option>
+      <option value="Unknown">Unknown / Not Documented</option>
+    </select>
+    <label for="referralStatus">Referral Outcome Status</label>
+    <select id="referralStatus">
+      <option value="Pending">Pending</option>
+      <option value="Completed">Completed — Referral Fulfilled</option>
+      <option value="Declined">Declined by Caregiver</option>
+      <option value="NotApplicable">Not Applicable</option>
+    </select>
+    <label for="notes">Clinical Progress Notes</label>
+    <textarea id="notes" rows="2" placeholder="Document appetite test outcomes, etc..."></textarea>
+    <button type="button" id="saveBtn">Log Clinical Visit Record</button>
+    <div id="editModeBanner" style="display:none;background:#fefcbf;border:1px solid #d69e2e;color:#7b341e;font-size:11px;padding:8px 10px;border-radius:6px;margin-top:8px;">
+      Editing an existing visit record. <button type="button" id="cancelEditBtn" style="width:auto;display:inline-block;margin:0 0 0 8px;padding:4px 8px;font-size:11px;background:#e2e8f0;color:#4a5568;">Cancel Edit</button>
+    </div>
+    <div class="status-line" id="statusLine"></div>
+    <div class="grid-2" style="margin-top:10px">
+      <button type="button" style="background:#4a5568" id="exportBtn">Export Backup (JSON)</button>
+      <button type="button" style="background:#4a5568" id="importBtn">Import Backup</button>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none">
+  </div>
+  <div class="panel">
+    <h2>Patient Database Lookup &amp; Trends</h2>
+    <div class="search-box">
+      <label style="margin-top:0" for="searchQuery">Search Master Database by Name or Triage ID</label>
+      <input type="text" id="searchQuery" placeholder="Type name or ID to filter records instantly...">
+    </div>
+    <div id="searchResultsZone">
+      <p style="color:#718096;font-style:italic;text-align:center;padding:40px 0">Type an entry ID or name above to view consolidated historic case-files and recovery graphs.</p>
+    </div>
+  </div>
+<div class="panel full-width">
+  <button type="button" class="section-toggle" data-target="ledgerBody">
+    <span>📋 Central Institutional Treatment Ledger</span>
+    <span class="chevron" id="ledgerChevron">▼</span>
+  </button>
+  <div id="ledgerBody" class="collapsible-body">
+    <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <button class="small-btn" id="generateLedgerPdfBtn" style="background:#276749;color:#fff;">Generate Ledger PDF</button>
+      <button class="small-btn" id="generatePatientPdfBtn" style="background:#2b6cb0;color:#fff;">Generate Patient Report</button>
+      <button class="small-btn danger-btn" id="clearBtn">Clear DB</button>
+    </div>
+    <div style="max-height:300px;overflow-y:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Date Logged</th><th>Triage ID</th><th>Patient Name</th><th>Age</th>
+            <th>Phenotype Classification</th><th>MUAC</th><th>Feeding</th><th>Infection Alert</th>
+            <th>Blood Profile (Hgb)</th><th>RUTF Dispensed</th><th>Referral Status</th><th>Recorded By</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="masterTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="panel full-width">
+  <button type="button" class="section-toggle" data-target="analyticsBody">
+    <span>📊 Analytics &amp; Reporting Dashboard</span>
+    <span class="chevron" id="analyticsChevron">▼</span>
+  </button>
+  <div id="analyticsBody" class="collapsible-body">
+    <div class="grid-3" style="align-items:end;">
+      <div><label for="analyticsFrom">From Date</label><input type="date" id="analyticsFrom"></div>
+      <div><label for="analyticsTo">To Date</label><input type="date" id="analyticsTo"></div>
+      <div><label for="analyticsFacility">Facility</label><select id="analyticsFacility"><option value="">All Facilities</option></select></div>
+    </div>
+    <button type="button" id="runAnalyticsBtn" style="margin-top:10px;background:#276749;">Generate Analytics (Opens New Window)</button>
+    <div class="grid-2" style="margin-top:15px;">
+      <button type="button" id="analyticsPdfBtn" style="background:#2b6cb0;">Export Analytics Report (PDF)</button>
+      <button type="button" id="csvExportBtn" style="background:#4a5568;">Export Records (CSV / Excel)</button>
+    </div>
+  </div>
+</div>
+<script>
+window.WHO_LMS_DATA = {
+  Male:   { W_A: {}, H_A: {}, W_H: {}, W_L: {} },
+  Female: { W_A: {}, H_A: {}, W_H: {}, W_L: {} }
+};
+</script>
+<script src="who_lms_wfa_boys.js"></script>
+<script src="who_lms_wfa_girls.js"></script>
+<script src="who_lms_wfh_boys.js"></script>
+<script src="who_lms_wfh_girls.js"></script>
+<script src="who_lms_wfl_boys.js"></script>
+<script src="who_lms_wfl_girls.js"></script>
+<script src="who_lms_lhfa_boys.js"></script>
+<script src="who_lms_lhfa_girls.js"></script>
+<script>
+/*
+ * FAST Referral Facility Management System
+ * © 2026 [Shukurana Sulaiman Adam]. Federal University Dutse, Jigawa State, Nigeria.
+ * Anthropometric reference data: WHO Child Growth Standards
+ * (https://www.who.int/tools/child-growth-standards)
+ */
+"use strict";
+const STORAGE_KEY = "fast_referral_db";
+const FACILITY_STORAGE_KEY = "fast_facility_information";
+window.referralDB = [];
+let editingVisitId = null;
+const LAST_BACKUP_KEY = "fast_last_backup_time";
+let lastDeletedSnapshot = null; // { type: "single"|"clear", records: [...] }
+function updateConnectivityBadge(){
+  const badge = document.getElementById("connectivityBadge");
+  if (!badge) return;
+  if (navigator.onLine) {
+    badge.textContent = "● Online — data saved locally on this device";
+    badge.style.background = "#c6f6d5"; badge.style.color = "#22543d";
+  } else {
+    badge.textContent = "● Offline — working locally, data saved on this device";
+    badge.style.background = "#fefcbf"; badge.style.color = "#7b341e";
+  }
+}
+function whoDataIsLoaded(){
+  return Object.keys(WHO_LMS_DATA.Male.W_A).length > 0
+      && Object.keys(WHO_LMS_DATA.Male.H_A).length > 0;
+}
+/* Standard WHO LMS z-score formula (Cole's LMS method) */
+function lmsZScore(X, L, M, S){
+  if (!Number.isFinite(X) || !Number.isFinite(L) || !Number.isFinite(M) || !Number.isFinite(S)) return null;
+  const rawZ = Math.abs(L) < 1e-9
+    ? Math.log(X / M) / S
+    : (Math.pow(X / M, L) - 1) / (L * S);
+  if (rawZ > 3) {
+    const SD3pos = M * Math.pow(1 + L * S * 3, 1 / L);
+    const SD2pos = M * Math.pow(1 + L * S * 2, 1 / L);
+    return 3 + (X - SD3pos) / (SD3pos - SD2pos);
+  }
+  if (rawZ < -3) {
+    const SD3neg = M * Math.pow(1 + L * S * -3, 1 / L);
+    const SD2neg = M * Math.pow(1 + L * S * -2, 1 / L);
+    return -3 + (X - SD3neg) / (SD2neg - SD3neg);
+  }
+  return rawZ;
+}
+function ageInDays(dobISO, assessmentISO) {
+  const dob = new Date(dobISO + "T00:00:00");
+  const assessment = new Date(assessmentISO + "T00:00:00");
+  return Math.round((assessment - dob) / (1000 * 60 * 60 * 24));
+}
+function ageDaysToMonthsDisplay(ageDays) {
+  return Math.floor(ageDays / 30.4375);
+}
+function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+function autofillFromExistingPatient(){
+  const id = document.getElementById("childId").value.trim().toUpperCase();
+  if (!id) return;
+  const existing = window.referralDB.find(r => r.id === id);
+  if (!existing) return;
+  document.getElementById("childName").value = existing.name;
+  document.getElementById("sex").value = existing.sex;
+  document.getElementById("dob").value = existing.dob;
+  setStatus(`Existing patient found — DOB and Sex auto-filled from Triage ID ${id}.`);
+  updateLivePreview();
+}
+function copyFromLastVisit(){
+  const id = document.getElementById("childId").value.trim().toUpperCase();
+  if (!id) { alert("Enter the patient's Triage ID first."); return; }
+  const previous = getPreviousVisitForPatient(id, editingVisitId);
+  if (!previous) { alert("No previous visit found for this Triage ID."); return; }
+  document.getElementById("breastfeedingStatus").value = previous.breastfeedingStatus || "Exclusive";
+  document.getElementById("immunizationStatus").value = previous.immunizationStatus || "UpToDate";
+  document.querySelectorAll(".inf-check").forEach(cb => {
+    cb.checked = previous.infection !== "None Detected" && previous.infection.split(", ").includes(cb.value);
+  });
+  setStatus(`Feeding, immunization, and infection fields copied from the visit on ${previous.date}.`);
+  updateLivePreview();
+}
+/* Nearest-month lookup with linear interpolation between adjacent months */
+function getLMS(sex, indicator, ageDays){
+  const table = WHO_LMS_DATA[sex] && WHO_LMS_DATA[sex][indicator];
+  if (!table) return null;
+  const keys = Object.keys(table).map(Number).sort((a,b) => a-b);
+  if (!keys.length) return null;
+  const min = keys[0], max = keys[keys.length - 1];
+  if (ageDays < min || ageDays > max) return null; // out of WHO reference range — do not extrapolate
+  if (table[ageDays]) return table[ageDays];
+  let lower = null, upper = null;
+  for (const k of keys) {
+    if (k <= ageDays) lower = k;
+    if (k >= ageDays && upper === null) upper = k;
+  }
+  if (lower === upper) return table[lower];
+  const [l1,m1,s1] = table[lower];
+  const [l2,m2,s2] = table[upper];
+  const frac = (ageDays - lower) / (upper - lower);
+  return [l1 + (l2-l1)*frac, m1 + (m2-m1)*frac, s1 + (s2-s1)*frac];
+}
+/* height keyed table lookup (for weight-for-height/length) with linear interpolation */
+function getLMSByHeight(sex, indicator, heightCm){
+  const table = WHO_LMS_DATA[sex] && WHO_LMS_DATA[sex][indicator];
+  if (!table) return null;
+  const keys = Object.keys(table).map(Number).sort((a,b) => a-b);
+  if (!keys.length) return null;
+  const min = keys[0], max = keys[keys.length - 1];
+  if (heightCm < min || heightCm > max) return null; // out of WHO reference range — do not extrapolate
+  let lower = null, upper = null;
+  for (const k of keys) {
+    if (k <= heightCm) lower = k;
+    if (k >= heightCm && upper === null) upper = k;
+  }
+  if (lower === upper) return table[lower];
+  const [l1,m1,s1] = table[lower];
+  const [l2,m2,s2] = table[upper];
+  const frac = (heightCm - lower) / (upper - lower);
+  return [l1 + (l2-l1)*frac, m1 + (m2-m1)*frac, s1 + (s2-s1)*frac];
+}
+/* ============================================================
+   ANTHROPOMETRIC SCORING — uses real WHO LMS lookups above
+   ============================================================ */
+function calculateAnthropometricScores(sex, ageDays, weight, lengthOrHeight){
+  const result = { waz: null, haz: null, whz: null };
+  if (!whoDataIsLoaded()) return result;
+  const wa = getLMS(sex, "W_A", ageDays);
+  if (wa && Number.isFinite(weight)) {
+    const z = lmsZScore(weight, wa[0], wa[1], wa[2]);
+    if (z !== null) result.waz = Number(z.toFixed(2));
+  }
+  const under24 = ageDays < 731;
+  const la = getLMS(sex, "H_A", ageDays);
+  if (la && Number.isFinite(lengthOrHeight)) {
+    const z = lmsZScore(lengthOrHeight, la[0], la[1], la[2]);
+    if (z !== null) result.haz = Number(z.toFixed(2));
+  }
+  const heightIndicator = under24 ? "W_L" : "W_H";
+  const wh = getLMSByHeight(sex, heightIndicator, lengthOrHeight);
+  if (wh && Number.isFinite(weight)) {
+    const z = lmsZScore(weight, wh[0], wh[1], wh[2]);
+    if (z !== null) result.whz = Number(z.toFixed(2));
+  }
+  return result;
+}
+/* PHENOTYPE — edema is a hard override per WHO SAM criteria */
+function classifyPhenotype(waz, haz, whz, muac, edemaPresent){
+  if (edemaPresent) return "Severe Acute Malnutrition — Edematous (Kwashiorkor)";
+  const underweight = Number.isFinite(waz) && waz < -2;
+  const stunted     = Number.isFinite(haz) && haz < -2;
+  const wastedWHZ   = Number.isFinite(whz) && whz < -2;
+  const wastedMUAC  = Number.isFinite(muac) && muac < 125;
+  const wasted      = wastedWHZ || wastedMUAC;
+  const count = Number(stunted) + Number(underweight) + Number(wasted);
+  if (count === 0) return "Normal Status";
+  if (count === 3) return "Triple Anthropometric Failure";
+  if (count === 1) {
+    if (stunted) return "Isolated Stunting";
+    if (underweight) return "Isolated Underweight";
+    return "Isolated Wasting";
+  }
+  if (stunted && underweight) return "Stunting + Underweight";
+  if (underweight && wasted) return "Underweight + Wasting";
+  if (stunted && wasted) return "Stunting + Wasting";
+  return "Multiple Anthropometric Failure";
+}
+/* TRIAGE — edema, MUAC, breastfeeding status, infections, anaemia all considered */
+function determineTriagePathway(phenotype, muac, hgb, infections, ageDays, breastfeedingStatus){
+  if (phenotype.startsWith("Severe Acute Malnutrition"))
+    return "URGENT: Immediate SAM Stabilization and Therapeutic Management";
+  if (Number.isFinite(muac) && muac < 115)
+    return "Urgent SAM Assessment and Therapeutic Management";
+  if (Number.isFinite(ageDays) && ageDays < 183 && breastfeedingStatus === "NonBreastfed")
+    return "URGENT: Non-breastfed infant <6 months — priority assessment regardless of current anthropometry";
+  if (phenotype === "Triple Anthropometric Failure")
+    return "Comprehensive Specialist Nutritional Assessment";
+  if (Number.isFinite(hgb) && hgb > 0 && hgb < 7)
+    return "Urgent Anaemia Evaluation and Clinical Referral";
+  if (infections.includes("AnemiaClinical"))
+    return "Urgent: Clinical Sign of Severe Anaemia Present — confirm hemoglobin and evaluate promptly";
+  if (Number.isFinite(ageDays) && ageDays < 183 && breastfeedingStatus === "Mixed")
+    return "Elevated Priority: Mixed feeding <6 months — breastfeeding counseling and monitoring";
+  if (infections.length >= 2)
+    return "Integrated Clinical Review for Multiple Comorbidities";
+  if (infections.length === 1)
+    return "Clinical Review Recommended: Isolated Infection Present (" + infections[0] + ")";
+  if (Number.isFinite(ageDays) && ageDays >= 183 && ageDays < 731 && breastfeedingStatus === "NonBreastfed")
+    return "Moderate Priority: Non-breastfed 6-24 months — nutrition counseling recommended";
+  if (phenotype !== "Normal Status")
+    return "Targeted Nutritional Follow-up and Monitoring";
+  return "Routine Growth Monitoring and Preventive Care";
+}
+/* Advisory only — does not affect triage urgency tier.
+   Immunization status correlates with general morbidity/healthcare-access risk,
+   but is not treated here as an acute-malnutrition triage signal. */
+function getImmunizationRecommendation(immunizationStatus, ageDays){
+  if (!Number.isFinite(ageDays)) return null;
+  if (immunizationStatus === "Incomplete")
+    return "Immunization catch-up recommended — status recorded as incomplete.";
+  if (immunizationStatus === "Unknown" && ageDays >= 42)
+    return "Immunization status undocumented — verify and update records at next contact.";
+  return null;
+}
+/* ============================================================
+   LIVE PREVIEW — computes on every relevant input change
+   ============================================================ */
+function parseOptionalNumber(id) {
+  const raw = document.getElementById(id).value;
+  if (raw === "" || raw === null) return NaN;
+  return Number(raw);
+}
+function getPreviousVisitForPatient(id, excludeVisitId){
+  if (!id) return null;
+  const candidates = window.referralDB.filter(r => r.id === id && r.visitId !== excludeVisitId);
+  if (!candidates.length) return null;
+  return candidates.reduce((latest, r) => new Date(r.timestamp) > new Date(latest.timestamp) ? r : latest);
+}
+/* Heuristic only — not a validated clinical deterioration instrument.
+   Flags a rapid WHZ or MUAC decline between two visits within 45 days,
+   even before WHO's own -2 SD / 125mm cutoffs are crossed. */
+function assessDeterioration(previous, currentWhz, currentMuac, currentAssessmentDate){
+  if (!previous || !currentAssessmentDate) return null;
+  const daysBetween = (new Date(currentAssessmentDate) - new Date(previous.assessmentDate)) / 86400000;
+  if (!Number.isFinite(daysBetween) || daysBetween <= 0 || daysBetween > 45) return null;
+  const flags = [];
+  if (Number.isFinite(previous.whz) && Number.isFinite(currentWhz) && (previous.whz - currentWhz) >= 0.5) {
+    flags.push(`WHZ dropped ${(previous.whz - currentWhz).toFixed(2)} SD in ${Math.round(daysBetween)} days (${previous.whz} → ${currentWhz})`);
+  }
+  if (Number.isFinite(previous.muac) && Number.isFinite(currentMuac) && (previous.muac - currentMuac) >= 5) {
+    flags.push(`MUAC dropped ${previous.muac - currentMuac}mm in ${Math.round(daysBetween)} days (${previous.muac}mm → ${currentMuac}mm)`);
+  }
+  return flags.length ? flags : null;
+}
+/* Flags implausible Z-scores (|Z| > 5) as likely data-entry errors —
+   soft warning only, never blocks saving, since rare genuine extreme
+   cases do exist. */
+function checkPlausibility(scores){
+  const flags = [];
+  if (Number.isFinite(scores.waz) && Math.abs(scores.waz) > 5)
+    flags.push(`WAZ of ${scores.waz} is extremely unusual — please double-check the weight entered.`);
+  if (Number.isFinite(scores.haz) && Math.abs(scores.haz) > 5)
+    flags.push(`HAZ of ${scores.haz} is extremely unusual — please double-check the height entered.`);
+  if (Number.isFinite(scores.whz) && Math.abs(scores.whz) > 5)
+    flags.push(`WHZ of ${scores.whz} is extremely unusual — please double-check the weight and height entered together.`);
+  return flags.length ? flags : null;
+}
+function checkFeedingAgePlausibility(ageDays, breastfeedingStatus){
+  if (!Number.isFinite(ageDays)) return null;
+  const flags = [];
+  if (breastfeedingStatus === "Exclusive" && ageDays > 210)
+    flags.push(`Exclusive breastfeeding selected but age is ${ageDaysToMonthsDisplay(ageDays)} months — please verify feeding status.`);
+  if (breastfeedingStatus === "NotApplicable" && ageDays < 731)
+    flags.push(`"Not Applicable (weaned, ≥24mo)" selected but age is ${ageDaysToMonthsDisplay(ageDays)} months — please verify feeding status.`);
+  return flags.length ? flags : null;
+}
+function checkRutfPlausibility(phenotype, rutf, muac){
+  const flags = [];
+  const isSAM = phenotype.startsWith("Severe Acute Malnutrition") || (Number.isFinite(muac) && muac < 115);
+  if (isSAM && (!Number.isFinite(rutf) || rutf === 0))
+    flags.push("This case appears to meet SAM criteria but 0 RUTF cartons were recorded — please verify.");
+  if (Number.isFinite(rutf) && rutf > 10)
+    flags.push(`${rutf} RUTF cartons is unusually high for a single visit — please double-check the entry.`);
+  return flags.length ? flags : null;
+}
+function readLiveInputs(){
+  const dob = document.getElementById("dob").value;
+  const assessmentDate = document.getElementById("assessmentDate").value;
+  const ageDays = (dob && assessmentDate) ? ageInDays(dob, assessmentDate) : NaN;
+  return {
+    sex: document.getElementById("sex").value,
+    ageDays: ageDays,
+    weight: parseOptionalNumber("weight"),
+    height: parseOptionalNumber("height"),
+    muac: parseOptionalNumber("muac"),
+    edema: document.getElementById("edema").checked,
+    hgb: document.getElementById("hgb").value === "" ? null : Number(document.getElementById("hgb").value),
+    breastfeedingStatus: document.getElementById("breastfeedingStatus").value,
+    infections: Array.from(document.querySelectorAll(".inf-check:checked")).map(el => el.value)
+  };
+}
+function updateLivePreview(){
+  const preview = document.getElementById("livePreview");
+  const warning = document.getElementById("dataWarning");
+  const input = readLiveInputs();
+const hasEnoughInput = Number.isFinite(input.ageDays) &&
+    ((Number.isFinite(input.muac) && input.muac > 0) ||
+     (Number.isFinite(input.weight) && input.weight > 0 && Number.isFinite(input.height) && input.height > 0));
+  if (!hasEnoughInput) {
+    preview.classList.remove("has-data","urgent");
+    warning.style.display = "none";
+    return;
+  }
+  if (!whoDataIsLoaded()) {
+    preview.classList.remove("has-data");
+    warning.textContent = "WHO reference tables are not yet loaded — Z-scores cannot be computed until WHO_LMS_DATA is filled in.";
+    warning.style.display = "block";
+    return;
+  }
+  const scores = calculateAnthropometricScores(input.sex, input.ageDays, input.weight, input.height);
+  const phenotype = classifyPhenotype(scores.waz, scores.haz, scores.whz, input.muac, input.edema);
+  const triage = determineTriagePathway(phenotype, input.muac, input.hgb, input.infections, input.ageDays, input.breastfeedingStatus);
+  const rangeNotes = [];
+  if (scores.waz === null) rangeNotes.push("WAZ not computed — age outside WHO weight-for-age reference range (0-1856 days).");
+  if (scores.haz === null) rangeNotes.push("HAZ not computed — age outside WHO length/height-for-age reference range.");
+  if (scores.whz === null) rangeNotes.push("WHZ not computed — height/length (" + input.height + " cm) is outside the WHO reference range (45-110cm under 24 months, 65-120cm from 24 months).");
+  if (rangeNotes.length) {
+    warning.textContent = rangeNotes.join(" ");
+    warning.style.display = "block";
+  } else {
+    warning.style.display = "none";
+  }
+  document.getElementById("previewPhenotype").textContent = "Phenotype: " + phenotype;
+  document.getElementById("previewScores").innerHTML =
+    `WAZ: ${scores.waz ?? "N/A"} &nbsp;|&nbsp; HAZ: ${scores.haz ?? "N/A"} &nbsp;|&nbsp; WHZ: ${scores.whz ?? "N/A"}`;
+  document.getElementById("previewTriage").textContent = "Pathway: " + triage;
+  preview.classList.add("has-data");
+  preview.classList.toggle("urgent", triage.startsWith("URGENT") || triage.startsWith("Urgent"));
+  const currentId = document.getElementById("childId").value.trim().toUpperCase();
+  const currentAssessmentDate = document.getElementById("assessmentDate").value || todayISO();
+  const previousVisit = getPreviousVisitForPatient(currentId, editingVisitId);
+  const deteriorationFlags = assessDeterioration(previousVisit, scores.whz, input.muac, currentAssessmentDate);
+  const deteriorationBox = document.getElementById("deteriorationWarning");
+  if (deteriorationFlags) {
+    deteriorationBox.innerHTML = "<strong>⚠ Rapid decline flag (heuristic, not a validated alert):</strong><br>" + deteriorationFlags.join("<br>");
+    deteriorationBox.style.display = "block";
+  } else {
+    deteriorationBox.style.display = "none";
+  }
+  const immunizationStatus = document.getElementById("immunizationStatus").value;
+  const immunizationBox = document.getElementById("immunizationNote");
+  const immunizationRecommendation = getImmunizationRecommendation(immunizationStatus, input.ageDays);
+  if (immunizationRecommendation) {
+    immunizationBox.textContent = immunizationRecommendation;
+    immunizationBox.style.display = "block";
+  } else {
+    immunizationBox.style.display = "none";
+  }
+  const plausibilityBox = document.getElementById("plausibilityWarning");
+  const plausibilityFlags = checkPlausibility(scores);
+  if (plausibilityFlags) {
+    plausibilityBox.innerHTML = "<strong>⚠ Unusual measurement — please verify:</strong><br>" + plausibilityFlags.join("<br>");
+    plausibilityBox.style.display = "block";
+  } else {
+    plausibilityBox.style.display = "none";
+  }
+  const feedingAgeBox = document.getElementById("feedingAgeWarning");
+  const feedingAgeFlags = checkFeedingAgePlausibility(input.ageDays, input.breastfeedingStatus);
+  if (feedingAgeFlags) {
+    feedingAgeBox.innerHTML = "<strong>⚠ Feeding/age mismatch:</strong><br>" + feedingAgeFlags.join("<br>");
+    feedingAgeBox.style.display = "block";
+  } else {
+    feedingAgeBox.style.display = "none";
+  }
+  const rutfBox = document.getElementById("rutfWarning");
+  const rutfRawVal = document.getElementById("rutfCartons").value;
+  const rutfPreview = rutfRawVal === "" ? NaN : Number(rutfRawVal);
+  const rutfFlags = checkRutfPlausibility(phenotype, rutfPreview, input.muac);
+  if (rutfFlags) {
+    rutfBox.innerHTML = "<strong>⚠ RUTF quantity check:</strong><br>" + rutfFlags.join("<br>");
+    rutfBox.style.display = "block";
+  } else {
+    rutfBox.style.display = "none";
+  }
+}
+function getTriageIdPrefix(){
+  return document.getElementById("idPrefix").value.trim().toUpperCase();
+}
+function computeNextTriageID(){
+  const prefix = getTriageIdPrefix();
+  const escapedPrefix = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = prefix
+    ? new RegExp("^" + escapedPrefix + "-(\\d+)$")
+    : /^(\d+)$/;
+  let maxNum = 0;
+  window.referralDB.forEach(r => {
+    const match = String(r.id).match(pattern);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (num > maxNum) maxNum = num;
+    }
+  });
+  const nextNum = maxNum + 1;
+  const padded = String(nextNum).padStart(4, "0");
+  return prefix ? `${prefix}-${padded}` : padded;
+}
+/* Only fills the field for a genuinely new/empty entry.
+   Never overrides an ID being edited or one the health worker
+   already typed (e.g. an existing patient's return-visit ID). */
+function autoFillNextTriageID(){
+  if (editingVisitId) return;
+  const idField = document.getElementById("childId");
+  if (idField.value.trim() !== "") return;
+  idField.value = computeNextTriageID();
+}
+/* ============================================================
+   DATABASE
+   ============================================================ */
+function generateVisitId(){
+  return 'v_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+}
+function initializeDatabase(){
+  try{
+    const stored = localStorage.getItem(STORAGE_KEY);
+    window.referralDB = stored ? JSON.parse(stored) : [];
+    if (!Array.isArray(window.referralDB)) window.referralDB = [];
+  }catch(error){
+    console.error(error);
+    window.referralDB = [];
+  }
+  window.referralDB.forEach(r => { if (!r.visitId) r.visitId = generateVisitId(); });
+}
+function saveDatabase(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(window.referralDB));
+}
+function sortDatabase(){
+  window.referralDB.sort((a,b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+}
+function setStatus(message){
+  document.getElementById("statusLine").textContent = message;
+}
+function escapeHTML(value){
+  return String(value ?? "")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+function clearVisitForm(){
+  const lastRecordedBy = document.getElementById("recordedBy").value;
+  ["childId","childName","weight","height","muac","hgb","rutfCartons","notes"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("recordedBy").value = lastRecordedBy;
+  document.getElementById("dob").value = "";
+  document.getElementById("assessmentDate").value = todayISO();
+  document.querySelectorAll(".inf-check").forEach(item => item.checked = false);
+  document.getElementById("edema").checked = false;
+  document.getElementById("lowBirthWeight").checked = false;
+  document.getElementById("breastfeedingStatus").value = "Exclusive";
+  document.getElementById("immunizationStatus").value = "UpToDate";
+  document.getElementById("referralStatus").value = "Pending";
+  autoFillNextTriageID();
+}
+/* SAVE RECORD */
+function saveReferralVisit(){
+  const id = document.getElementById("childId").value.trim().toUpperCase();
+  const name = document.getElementById("childName").value.trim();
+  const sex = document.getElementById("sex").value;
+  const dob = document.getElementById("dob").value;
+  const assessmentDate = document.getElementById("assessmentDate").value || todayISO();
+  const weight = Number(document.getElementById("weight").value);
+  const height = Number(document.getElementById("height").value);
+  const muac = Number(document.getElementById("muac").value);
+  const edema = document.getElementById("edema").checked;
+  const lowBirthWeight = document.getElementById("lowBirthWeight").checked;
+  const breastfeedingStatus = document.getElementById("breastfeedingStatus").value;
+  const immunizationStatus = document.getElementById("immunizationStatus").value;
+  const hgbRaw = document.getElementById("hgb").value;
+  const rutfRaw = document.getElementById("rutfCartons").value;
+  const hgb = hgbRaw === "" ? null : Number(hgbRaw);
+  const rutf = rutfRaw === "" ? 0 : Number(rutfRaw);
+  const notes = document.getElementById("notes").value.trim();
+  const recordedBy = document.getElementById("recordedBy").value.trim() || "Not Specified";
+  const referralStatus = document.getElementById("referralStatus").value;
+  const facilityName = getFacilityInformation().name;
+  if (!id || !name) { alert("Please enter the patient ID and full name."); return; }
+  if (!dob) { alert("Please enter the patient's date of birth."); return; }
+  if (!assessmentDate) { alert("Please enter the assessment date."); return; }
+  const ageDays = ageInDays(dob, assessmentDate);
+  if (!Number.isFinite(ageDays) || ageDays < 0 || ageDays > 1856) {
+    alert("Calculated age is out of the 0-59 month range  check the DOB and assessment date.");
+    return;
+  }
+  const feedingAgeFlags = checkFeedingAgePlausibility(ageDays, breastfeedingStatus);
+  if (feedingAgeFlags) {
+    const proceed = confirm("Feeding status may not match the recorded age:\n\n" + feedingAgeFlags.join("\n") + "\n\nClick OK to save anyway, or Cancel to review.");
+    if (!proceed) return;
+  }
+  if (!Number.isFinite(weight) || weight <= 0) { alert("Enter a valid weight."); return; }
+  if (!Number.isFinite(weight) || weight <= 0) { alert("Enter a valid weight."); return; }
+  if (!Number.isFinite(height) || height <= 0) { alert("Enter a valid height/length."); return; }
+  if (!Number.isFinite(muac) || muac <= 0) { alert("Enter a valid MUAC."); return; }
+  const isDuplicate = window.referralDB.some(r =>
+    r.id === id && r.assessmentDate === assessmentDate && r.visitId !== editingVisitId
+  );
+  if (isDuplicate) {
+    const proceed = confirm(
+      `A visit for Triage ID ${id} on ${assessmentDate} already exists.\n\n` +
+      `This looks like it may be a duplicate entry. Click OK only if this is genuinely a second, separate visit logged on the same date.`
+    );
+    if (!proceed) return;
+  }
+  if (!whoDataIsLoaded()) {
+    alert("WHO reference tables are not loaded yet, so WAZ/HAZ/WHZ cannot be computed. The record will still be saved with MUAC- and edema-based classification only.");
+  }
+  const infections = Array.from(document.querySelectorAll(".inf-check:checked")).map(el => el.value);
+  const infectionText = infections.length ? infections.join(", ") : "None Detected";
+  const scores = calculateAnthropometricScores(sex, ageDays, weight, height);
+  const plausibilityFlags = checkPlausibility(scores);
+  if (plausibilityFlags) {
+    const proceed = confirm(
+      "One or more measurements look highly unusual:\n\n" +
+      plausibilityFlags.join("\n") +
+      "\n\nThis is often a data entry mistake (e.g. a typo, or weight/height in the wrong unit). Click OK only if you have double-checked and these values are correct."
+    );
+    if (!proceed) return;
+  }
+  const phenotype = classifyPhenotype(scores.waz, scores.haz, scores.whz, muac, edema);
+  const rutfFlags = checkRutfPlausibility(phenotype, rutf, muac);
+  if (rutfFlags) {
+    const proceed = confirm("RUTF quantity flag:\n\n" + rutfFlags.join("\n") + "\n\nClick OK to save anyway, or Cancel to review.");
+    if (!proceed) return;
+  }
+  const triagePathway = determineTriagePathway(phenotype, muac, hgb, infections, ageDays, breastfeedingStatus);
+  const immunizationRecommendation = getImmunizationRecommendation(immunizationStatus, ageDays);
+  let timestamp, dateStr, visitId;
+  if (editingVisitId) {
+    const existing = window.referralDB.find(r => r.visitId === editingVisitId);
+    timestamp = existing ? existing.timestamp : new Date().toISOString();
+    dateStr = existing ? existing.date : new Date().toLocaleString();
+    visitId = editingVisitId;
+  } else {
+    const now = new Date();
+    timestamp = now.toISOString();
+    dateStr = now.toLocaleString();
+    visitId = generateVisitId();
+  }
+  const record = {
+    visitId, id, name, sex, dob, assessmentDate, recordedBy,
+    age: ageDaysToMonthsDisplay(ageDays), ageDays,
+    weight, height, muac, hgb, rutf,
+    edema, lowBirthWeight, breastfeedingStatus, immunizationStatus,
+    infection: infectionText, referralStatus, facilityName,
+    notes: notes || "No clinical notes recorded.",
+    waz: scores.waz, haz: scores.haz, whz: scores.whz,
+    phenotype, triagePathway, immunizationRecommendation,
+    timestamp, date: dateStr
+  };
+  if (editingVisitId) {
+    const idx = window.referralDB.findIndex(r => r.visitId === editingVisitId);
+    if (idx !== -1) window.referralDB[idx] = record;
+  } else {
+    window.referralDB.push(record);
+  }
+  sortDatabase();
+  saveDatabase();
+  renderMasterLedger();
+  const wasEditing = !!editingVisitId;
+  exitEditMode();
+  clearVisitForm();
+  updateLivePreview();
+  setStatus(wasEditing
+    ? `Visit record updated for ${name}. Phenotype: ${phenotype}. Pathway: ${triagePathway}.`
+    : `Clinical visit successfully logged for ${name}. Phenotype: ${phenotype}. Pathway: ${triagePathway}.`);
+  updateBackupBanner();
+}
+function exitEditMode(){
+  editingVisitId = null;
+  document.getElementById("editModeBanner").style.display = "none";
+  document.getElementById("saveBtn").textContent = "Log Clinical Visit Record";
+}
+function startEditRecord(visitId){
+  const record = window.referralDB.find(r => r.visitId === visitId);
+  if (!record) { alert("Record not found — it may have been deleted."); return; }
+  editingVisitId = visitId;
+  document.getElementById("childId").value = record.id;
+  document.getElementById("childName").value = record.name;
+  document.getElementById("sex").value = record.sex;
+  document.getElementById("dob").value = record.dob;
+  document.getElementById("assessmentDate").value = record.assessmentDate;
+  document.getElementById("recordedBy").value = record.recordedBy || "";
+  document.getElementById("weight").value = record.weight;
+  document.getElementById("height").value = record.height;
+  document.getElementById("muac").value = record.muac;
+  document.getElementById("hgb").value = record.hgb === null ? "" : record.hgb;
+  document.getElementById("rutfCartons").value = record.rutf;
+  document.getElementById("notes").value = record.notes === "No clinical notes recorded." ? "" : record.notes;
+  document.getElementById("edema").checked = !!record.edema;
+  document.getElementById("lowBirthWeight").checked = !!record.lowBirthWeight;
+  document.getElementById("breastfeedingStatus").value = record.breastfeedingStatus || "Exclusive";
+  document.getElementById("immunizationStatus").value = record.immunizationStatus || "UpToDate";
+  document.getElementById("referralStatus").value = record.referralStatus || "Pending";
+  document.querySelectorAll(".inf-check").forEach(cb => {
+    cb.checked = record.infection !== "None Detected" && record.infection.split(", ").includes(cb.value);
+  });
+  document.getElementById("editModeBanner").style.display = "block";
+  document.getElementById("saveBtn").textContent = "Update Clinical Visit Record";
+  updateLivePreview();
+  document.getElementById("childId").scrollIntoView({behavior:"smooth", block:"start"});
+}
+function deleteRecord(visitId){
+  const record = window.referralDB.find(r => r.visitId === visitId);
+  if (!record) return;
+  if (!confirm(`Delete the visit for ${record.name} (${record.id}) logged on ${record.date}? You'll have a short window to undo this.`)) return;
+  lastDeletedSnapshot = { type: "single", records: [record] };
+  window.referralDB = window.referralDB.filter(r => r.visitId !== visitId);
+  saveDatabase();
+  renderMasterLedger();
+  searchDatabase();
+  updateBackupBanner();
+  if (editingVisitId === visitId) {
+    exitEditMode();
+    clearVisitForm();
+  }
+  setStatus("Record deleted.");
+  showUndoToast(`Deleted visit for ${record.name}.`);
+}
+/* LEDGER */
+function renderMasterLedger(){
+  const tbody = document.getElementById("masterTableBody");
+  tbody.innerHTML = "";
+  if (window.referralDB.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;color:#a0aec0;padding:20px">No therapeutic records compiled yet.</td></tr>`;
+    return;
+  }
+  window.referralDB.forEach(record => {
+    const infectionBadge = record.infection === "None Detected"
+      ? `<span class="badge badge-ok">Clean</span>`
+      : `<span class="badge badge-alert">${escapeHTML(record.infection)}</span>`;
+    const phenotypeBadge = record.edema
+      ? `<span class="badge badge-critical">${escapeHTML(record.phenotype)}</span>`
+      : escapeHTML(record.phenotype);
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${escapeHTML(record.date)}</td>
+      <td>${escapeHTML(record.id)}</td>
+      <td>${escapeHTML(record.name)}</td>
+      <td>${escapeHTML(record.age)} mo</td>
+      <td>${phenotypeBadge}</td>
+      <td>${escapeHTML(record.muac)} mm</td>
+      <td>${escapeHTML(record.breastfeedingStatus || "N/A")}</td>
+      <td>${infectionBadge}</td>
+      <td>${record.hgb !== null ? escapeHTML(record.hgb) + " g/dL" : "N/A"}</td>
+      <td>${escapeHTML(record.rutf)}</td>
+      <td>${escapeHTML(record.referralStatus || "Pending")}</td>
+      <td>${escapeHTML(record.recordedBy || "N/A")}</td>
+      <td>
+        <button type="button" class="small-btn" style="width:auto;background:#2b6cb0;color:#fff;display:block;margin-bottom:4px;" data-action="edit" data-visit-id="${record.visitId}">Edit</button>
+        <button type="button" class="small-btn danger-btn" style="width:auto;" data-action="delete" data-visit-id="${record.visitId}">Delete</button>
+      </td>
+    `;
+    tbody.appendChild(row);
+});
+}
+
+/* SEARCH */
+function searchDatabase(){
+  const query = document.getElementById("searchQuery").value.trim().toLowerCase();
+  const zone = document.getElementById("searchResultsZone");
+  if (!query) {
+    zone.innerHTML = `<p style="color:#718096;font-style:italic;text-align:center;padding:40px 0">Type an entry ID or name above to view consolidated historic case-files and recovery graphs.</p>`;
+    return;
+  }
+  const matches = window.referralDB.filter(record =>
+    String(record.id).toLowerCase().includes(query) || String(record.name).toLowerCase().includes(query)
+  );
+  if (matches.length === 0) {
+    zone.innerHTML = `<p style="color:#e53e3e;font-weight:bold;text-align:center;padding:40px 0">No registered patient profiles match that search query.</p>`;
+    return;
+  }
+  const patients = {};
+  matches.forEach(record => {
+    if (!patients[record.id]) patients[record.id] = [];
+    patients[record.id].push(record);
+  });
+  zone.innerHTML = "";
+  Object.keys(patients).forEach(patientId => {
+    const records = patients[patientId].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+    const latest = records[records.length - 1];
+    const canvasId = "canvas_" + patientId.replace(/[^a-zA-Z0-9_-]/g,"_");
+    const card = document.createElement("div");
+    card.className = "patient-card";
+    const timelineHTML = records.map((record, index) => {
+      const prev = index > 0 ? records[index - 1] : null;
+      const declineFlags = prev ? assessDeterioration(prev, record.whz, record.muac, record.assessmentDate) : null;
+      const declineLine = declineFlags
+        ? `<br><strong style="color:#c53030;">⚠ Rapid decline since previous visit:</strong> ${declineFlags.join("; ")}`
+        : "";
+      return `
+      <div class="record-card">
+        <strong>Visit ${index + 1}: ${escapeHTML(record.date)}</strong><br>
+        <strong>Phenotype:</strong> ${escapeHTML(record.phenotype)}${record.edema ? " ⚠️ EDEMA PRESENT" : ""}<br>
+        <strong>MUAC:</strong> ${escapeHTML(record.muac)} mm | <strong>Weight:</strong> ${escapeHTML(record.weight)} kg<br>
+        <strong>WAZ:</strong> ${escapeHTML(record.waz ?? "N/A")} | <strong>HAZ:</strong> ${escapeHTML(record.haz ?? "N/A")} | <strong>WHZ:</strong> ${escapeHTML(record.whz ?? "N/A")}<br>
+        <strong>Breastfeeding:</strong> ${escapeHTML(record.breastfeedingStatus || "N/A")} | <strong>Low Birth Weight:</strong> ${record.lowBirthWeight ? "Yes" : "No"}<br>
+        <strong>Infections:</strong> ${escapeHTML(record.infection)}<br>
+        <strong>Hemoglobin:</strong> ${record.hgb ?? "N/A"} g/dL | <strong>RUTF:</strong> ${record.rutf} cartons<br>
+        <strong>Clinical Notes:</strong> ${escapeHTML(record.notes)}<br>
+        <strong>Action Pathway:</strong> ${escapeHTML(record.triagePathway)}<br>
+        <strong>Recorded By:</strong> ${escapeHTML(record.recordedBy || "N/A")}
+        ${record.immunizationRecommendation ? `<br><strong style="color:#2c5282;">Immunization Note:</strong> ${escapeHTML(record.immunizationRecommendation)}` : ""}
+      ${declineLine}
+      </div>
+      `;
+    }).join("");
+    card.innerHTML = `
+      <h3 style="margin-top:0;color:#1a365d">${escapeHTML(latest.name)}
+        <span style="font-size:11px;color:#718096">ID: ${escapeHTML(patientId)} (${escapeHTML(latest.sex)} | ${escapeHTML(latest.age)} Months)</span>
+      </h3>
+      <p style="font-size:11px;color:#4a5568">Total Longitudinal Reviews: <strong>${records.length}</strong></p>
+      <h4>Longitudinal Recovery Curve (MUAC Trend)</h4>
+      <canvas id="${canvasId}" width="800" height="280"></canvas>
+      <h4>Clinical History Log</h4>
+      ${timelineHTML}
+    `;
+    zone.appendChild(card);
+    drawRecoveryGraph(canvasId, records);
+  });
+}
+/* MUAC GRAPH */
+function drawRecoveryGraph(canvasId, records){
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const timeline = [...records]
+    .filter(r => Number.isFinite(Number(r.muac)))
+    .sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+  if (!timeline.length) return;
+  const width = canvas.width, height = canvas.height;
+  const padding = { top:25, right:30, bottom:45, left:50 };
+  const plotWidth = width - padding.left - padding.right;
+  const plotHeight = height - padding.top - padding.bottom;
+  const values = timeline.map(r => Number(r.muac));
+  let yMin = Math.floor((Math.min(...values)-5)/5)*5;
+  let yMax = Math.ceil((Math.max(...values)+5)/5)*5;
+  yMin = Math.min(yMin,115);
+  yMax = Math.max(yMax,125);
+  ctx.clearRect(0,0,width,height);
+  ctx.font = "10px Arial";
+  for (let i=0;i<=5;i++){
+    const value = yMin + ((yMax-yMin)/5)*i;
+    const y = padding.top + plotHeight - ((value-yMin)/(yMax-yMin))*plotHeight;
+    ctx.strokeStyle="#e2e8f0";
+    ctx.beginPath(); ctx.moveTo(padding.left,y); ctx.lineTo(width-padding.right,y); ctx.stroke();
+    ctx.fillStyle="#718096"; ctx.fillText(`${Math.round(value)} mm`,5,y+4);
+  }
+  function getY(value){ return padding.top + plotHeight - ((value-yMin)/(yMax-yMin))*plotHeight; }
+  function getX(index){
+    if (timeline.length === 1) return padding.left + plotWidth/2;
+    return padding.left + (index/(timeline.length-1))*plotWidth;
+  }
+  [115,125].forEach((threshold,index)=>{
+    if (threshold >= yMin && threshold <= yMax) {
+      ctx.setLineDash([5,4]);
+      ctx.strokeStyle = index === 0 ? "#c53030" : "#b7791f";
+      ctx.beginPath(); ctx.moveTo(padding.left,getY(threshold)); ctx.lineTo(width-padding.right,getY(threshold)); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  });
+  if (timeline.length > 1) {
+    ctx.strokeStyle="#2b6cb0"; ctx.lineWidth=3;
+    ctx.beginPath();
+    timeline.forEach((record,index)=>{
+      const x=getX(index), y=getY(Number(record.muac));
+      if (index===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+  }
+  timeline.forEach((record,index)=>{
+    const value=Number(record.muac);
+    const x=getX(index), y=getY(value);
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle = record.edema ? "#742a2a" : (value < 115 ? "#c53030" : (value < 125 ? "#d69e2e" : "#276749"));
+    ctx.fill();
+    ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.stroke();
+    ctx.fillStyle="#1a365d"; ctx.font="bold 10px Arial";
+    ctx.fillText(`${value} mm`,x-15,y-10);
+    const date = new Date(record.timestamp);
+    const label = date.toLocaleDateString(undefined,{day:"numeric",month:"short"});
+    ctx.fillStyle="#718096"; ctx.font="9px Arial";
+    ctx.fillText(label,x-18,height-15);
+  });
+  ctx.fillStyle="#4a5568"; ctx.font="bold 11px Arial";
+  ctx.fillText("MUAC (mm)",padding.left,15);
+}
+/* ============================================================
+   BACKUP REMINDER
+   ============================================================ */
+function recordBackupTimestamp(){
+  localStorage.setItem(LAST_BACKUP_KEY, new Date().toISOString());
+  updateBackupBanner();
+}
+function updateBackupBanner(){
+  const banner = document.getElementById("backupBanner");
+  if (!window.referralDB.length) { banner.style.display = "none"; return; }
+  const lastBackupISO = localStorage.getItem(LAST_BACKUP_KEY);
+  if (!lastBackupISO) {
+    banner.textContent = "⚠ No backup has been taken yet. Export a backup to protect these records from being lost.";
+    banner.style.display = "block";
+    return;
+  }
+  const lastBackupDate = new Date(lastBackupISO);
+  const daysSince = Math.floor((Date.now() - lastBackupDate.getTime()) / 86400000);
+  const newRecordsSince = window.referralDB.filter(r => new Date(r.timestamp) > lastBackupDate).length;
+  if (daysSince >= 3 || newRecordsSince >= 5) {
+    banner.textContent = `⚠ Last backup: ${daysSince} day(s) ago. ${newRecordsSince} new record(s) since then. Consider exporting a backup.`;
+    banner.style.display = "block";
+  } else {
+    banner.style.display = "none";
+  }
+}
+/* FACILITY INFORMATION */
+function saveFacilityInformation(){
+  const information = {
+    name: document.getElementById("facilityName").value.trim(),
+    location: document.getElementById("facilityLocation").value.trim(),
+    healthWorker: document.getElementById("healthWorkerName").value.trim(),
+    idPrefix: document.getElementById("idPrefix").value.trim().toUpperCase()
+  };
+  localStorage.setItem(FACILITY_STORAGE_KEY, JSON.stringify(information));
+}
+function loadFacilityInformation(){
+  try{
+    const saved = localStorage.getItem(FACILITY_STORAGE_KEY);
+    if (!saved) return;
+    const info = JSON.parse(saved);
+    document.getElementById("facilityName").value = info.name || "";
+    document.getElementById("facilityLocation").value = info.location || "";
+    document.getElementById("healthWorkerName").value = info.healthWorker || "";
+    document.getElementById("idPrefix").value = info.idPrefix || "";
+  }catch(error){ console.error(error); }
+}
+function getFacilityInformation(){
+  return {
+    name: document.getElementById("facilityName").value.trim() || "Facility Name Not Specified",
+    location: document.getElementById("facilityLocation").value.trim() || "Location Not Specified",
+    healthWorker: document.getElementById("healthWorkerName").value.trim() || "Health Worker Not Specified"
+  };
+}
+/* PRINT WINDOW */
+function openPrintWindow(title, content){
+  const printWindow = window.open("", "_blank", "width=1000,height=800");
+  if (!printWindow) { alert("Popup was blocked. Please allow popups for this application."); return; }
+  printWindow.document.write(`
+    <!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title>
+    <style>
+      body{font-family:Arial,sans-serif;color:#222;margin:25px;}
+      .header{text-align:center;border-bottom:2px solid #1a365d;padding-bottom:12px;margin-bottom:18px;}
+      h1{color:#1a365d;margin:0;font-size:22px;}
+      h2{color:#2b6cb0;font-size:16px;}
+      .meta{font-size:12px;margin-top:5px;}
+      table{width:100%;border-collapse:collapse;font-size:10px;margin-top:15px;}
+      th{background:#1a365d;color:white;}
+      th,td{border:1px solid #999;padding:6px;text-align:left;vertical-align:top;}
+      .section{margin-top:20px;page-break-inside:avoid;}
+      .record{border:1px solid #ccc;padding:10px;margin-bottom:10px;page-break-inside:avoid;}
+      img{max-width:100%;height:auto;}
+      .footer{text-align:center;font-size:10px;margin-top:20px;color:#666;}
+      @media print{ body{margin:12mm;} button{display:none;} @page{size:A4;margin:12mm;} }
+    </style></head><body>${content}
+    <script>window.onload=function(){setTimeout(function(){window.print();},500);};<\/script>
+    </body></html>
+  `);
+  printWindow.document.close();
+}
+/* LEDGER REPORT */
+function generateLedgerPDF(){
+  if (window.referralDB.length === 0) { alert("There are no records in the treatment ledger."); return; }
+  const facility = getFacilityInformation();
+  let rows = "";
+  window.referralDB.forEach(record=>{
+    rows += `<tr>
+      <td>${escapeHTML(record.date)}</td><td>${escapeHTML(record.id)}</td><td>${escapeHTML(record.name)}</td>
+      <td>${escapeHTML(record.sex)}</td><td>${escapeHTML(record.age)} mo</td><td>${escapeHTML(record.phenotype)}</td>
+      <td>${escapeHTML(record.muac)} mm</td><td>${escapeHTML(record.weight)} kg</td><td>${escapeHTML(record.height)} cm</td>
+      <td>${escapeHTML(record.breastfeedingStatus)}</td><td>${escapeHTML(record.infection)}</td>
+      <td>${record.hgb ?? "N/A"}</td><td>${escapeHTML(record.rutf)}</td>
+      <td>${escapeHTML(record.recordedBy || "N/A")}</td>
+    </tr>`;
+  });
+  const content = `
+    <div class="header">
+      <h1>${escapeHTML(facility.name)}</h1>
+      <div class="meta">${escapeHTML(facility.location)}</div>
+      <h2>FAST Referral Facility Management System</h2>
+      <strong>Central Institutional Treatment Ledger</strong>
+    </div>
+    <p class="meta">Responsible Health Worker: <strong>${escapeHTML(facility.healthWorker)}</strong><br>
+      Report Generated: ${new Date().toLocaleString()}<br>
+      Total Visit Records: ${window.referralDB.length}</p>
+    <table><thead><tr>
+      <th>Date</th><th>ID</th><th>Patient</th><th>Sex</th><th>Age</th><th>Phenotype</th>
+      <th>MUAC</th><th>Weight</th><th>Height</th><th>Feeding</th><th>Infections</th><th>Hgb</th><th>RUTF</th><th>Recorded By</th>
+    </tr></thead><tbody>${rows}</tbody></table>
+    <div class="footer">FAST Referral Facility Management System</div>
+  `;
+  openPrintWindow("FAST Central Treatment Ledger", content);
+}
+/* PATIENT SELECTION */
+function selectPatientForReport(){
+  const query = document.getElementById("searchQuery").value.trim().toLowerCase();
+  let candidates = window.referralDB;
+  if (query) {
+    candidates = candidates.filter(r =>
+      String(r.id).toLowerCase().includes(query) || String(r.name).toLowerCase().includes(query)
+    );
+  }
+  if (!candidates.length) { alert("Search for a patient before generating an individual report."); return null; }
+  const groups = {};
+  candidates.forEach(r => { if (!groups[r.id]) groups[r.id] = []; groups[r.id].push(r); });
+  const ids = Object.keys(groups);
+  let selectedID = ids[0];
+  if (ids.length > 1) {
+    const choice = prompt(ids.map((id,index) => `${index+1}. ${id} - ${groups[id][0].name}`).join("\n") + "\n\nEnter patient number:");
+    const index = Number(choice) - 1;
+    if (!Number.isInteger(index) || index < 0 || index >= ids.length) { alert("Invalid patient selection."); return null; }
+    selectedID = ids[index];
+  }
+  return groups[selectedID].sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+}
+/* PATIENT REPORT */
+function generatePatientPDF(){
+  const records = selectPatientForReport();
+  if (!records) return;
+  const latest = records[records.length-1];
+  const facility = getFacilityInformation();
+  const safeCanvasId = "report_canvas_" + latest.id.replace(/[^a-zA-Z0-9_-]/g,"_");
+  const temporaryCanvas = document.createElement("canvas");
+  temporaryCanvas.id = safeCanvasId;
+  temporaryCanvas.width = 900;
+  temporaryCanvas.height = 350;
+  temporaryCanvas.style.position = "fixed";
+  temporaryCanvas.style.left = "-9999px";
+  document.body.appendChild(temporaryCanvas);
+  drawRecoveryGraph(safeCanvasId, records);
+  const graphImage = temporaryCanvas.toDataURL("image/png");
+  temporaryCanvas.remove();
+  let historyHTML = "";
+  records.forEach((record, index) => {
+    historyHTML += `<div class="record">
+      <strong>Visit ${index+1}</strong><br>
+      <strong>Date:</strong> ${escapeHTML(record.date)}<br>
+      <strong>Phenotype:</strong> ${escapeHTML(record.phenotype)}${record.edema ? " (Edema present)" : ""}<br>
+      <strong>Anthropometry:</strong> MUAC ${record.muac} mm | Weight ${record.weight} kg | Height ${record.height} cm<br>
+      <strong>Scores:</strong> WAZ ${record.waz ?? "N/A"} | HAZ ${record.haz ?? "N/A"} | WHZ ${record.whz ?? "N/A"}<br>
+      <strong>Breastfeeding:</strong> ${escapeHTML(record.breastfeedingStatus)} | <strong>Low Birth Weight:</strong> ${record.lowBirthWeight ? "Yes" : "No"}<br>
+      <strong>Hemoglobin:</strong> ${record.hgb ?? "N/A"} g/dL<br>
+      <strong>RUTF Dispensed:</strong> ${record.rutf} cartons<br>
+      <strong>Infections:</strong> ${escapeHTML(record.infection)}<br>
+      <strong>Clinical Notes:</strong> ${escapeHTML(record.notes)}<br>
+      <strong>Action Pathway:</strong> ${escapeHTML(record.triagePathway)}<br>
+      <strong>Recorded By:</strong> ${escapeHTML(record.recordedBy || "N/A")}
+    </div>`;
+  });
+  const content = `
+    <div class="header">
+      <h1>${escapeHTML(facility.name)}</h1>
+      <div class="meta">${escapeHTML(facility.location)}</div>
+      <h2>FAST Referral Facility Management System</h2>
+      <strong>Individual Patient Clinical Report</strong>
+    </div>
+    <p class="meta">Responsible Health Worker: <strong>${escapeHTML(facility.healthWorker)}</strong><br>Report Generated: ${new Date().toLocaleString()}</p>
+    <div class="section"><h2>Patient Information</h2>
+      <table>
+        <tr><td><strong>Patient Name</strong></td><td>${escapeHTML(latest.name)}</td></tr>
+        <tr><td><strong>Triage ID</strong></td><td>${escapeHTML(latest.id)}</td></tr>
+        <tr><td><strong>Sex</strong></td><td>${escapeHTML(latest.sex)}</td></tr>
+        <tr><td><strong>Age</strong></td><td>${escapeHTML(latest.age)} months</td></tr>
+        <tr><td><strong>Total Recorded Visits</strong></td><td>${records.length}</td></tr>
+        <tr><td><strong>Latest MUAC</strong></td><td>${latest.muac} mm</td></tr>
+        <tr><td><strong>Latest Phenotype</strong></td><td>${escapeHTML(latest.phenotype)}</td></tr>
+      </table>
+    </div>
+    <div class="section"><h2>Longitudinal MUAC Recovery Trend</h2><img src="${graphImage}"></div>
+    <div class="section"><h2>Detailed Clinical Visit History</h2>${historyHTML}</div>
+    <div class="footer">FAST Referral Facility Management System</div>
+  `;
+  openPrintWindow(`Patient Report - ${latest.name}`, content);
+}
+/* EXPORT / IMPORT */
+function exportDatabase(){
+  const data = JSON.stringify(window.referralDB, null, 2);
+  const blob = new Blob([data], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `FAST_Backup_${new Date().toISOString().slice(0,10)}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+  recordBackupTimestamp();
+}
+function importDatabase(event){
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const imported = JSON.parse(e.target.result);
+      if (!Array.isArray(imported)) throw new Error("Invalid backup");
+      if (confirm(`Import ${imported.length} records? This will replace the current database.`)) {
+        window.referralDB = imported;
+        sortDatabase();
+        saveDatabase();
+        renderMasterLedger();
+        searchDatabase();
+  updateBackupBanner();
+      }
+    }catch(error){ alert("The selected file is not a valid FAST backup."); }
+  };
+  reader.readAsText(file);
+}
+/* CLEAR DATABASE */
+function clearDatabase(){
+  if (!window.referralDB.length) { alert("There are no records to clear."); return; }
+  if (!confirm(`This will remove all ${window.referralDB.length} record(s). You'll have a short window to undo. Continue?`)) return;
+  lastDeletedSnapshot = { type: "clear", records: window.referralDB.slice() };
+  window.referralDB = [];
+  saveDatabase();
+  renderMasterLedger();
+  updateBackupBanner();
+  document.getElementById("searchQuery").value = "";
+  document.getElementById("searchResultsZone").innerHTML = `<p style="color:#718096;text-align:center;padding:40px">Database cleared.</p>`;
+  showUndoToast(`Cleared ${lastDeletedSnapshot.records.length} record(s).`);
+}
+/* ============================================================
+   UNDO TOAST — short-lived recovery window for deletes/clear
+   ============================================================ */
+let undoToastTimer = null;
+function showUndoToast(message){
+  const existing = document.getElementById("undoToast");
+  if (existing) existing.remove();
+  if (undoToastTimer) clearTimeout(undoToastTimer);
+  const toast = document.createElement("div");
+  toast.id = "undoToast";
+  toast.className = "undo-toast";
+  toast.innerHTML = `<span>${escapeHTML(message)}</span><button type="button" id="undoBtn">Undo</button>`;
+  document.body.appendChild(toast);
+  document.getElementById("undoBtn").addEventListener("click", performUndo);
+  undoToastTimer = setTimeout(() => { toast.remove(); lastDeletedSnapshot = null; }, 10000);
+}
+function performUndo(){
+  if (!lastDeletedSnapshot) return;
+  window.referralDB = window.referralDB.concat(lastDeletedSnapshot.records);
+  sortDatabase();
+  saveDatabase();
+  renderMasterLedger();
+  searchDatabase();
+  updateBackupBanner();
+  setStatus(lastDeletedSnapshot.type === "clear" ? "Clear DB undone  records restored." : "Delete undone  record restored.");
+  lastDeletedSnapshot = null;
+  const toast = document.getElementById("undoToast");
+  if (toast) toast.remove();
+  if (undoToastTimer) clearTimeout(undoToastTimer);
+}
+function filterRecordsByDateRange(fromISO, toISO, facilityFilter){
+  return window.referralDB.filter(r => {
+    const d = r.assessmentDate;
+    if (fromISO && d < fromISO) return false;
+    if (toISO && d > toISO) return false;
+    if (facilityFilter && r.facilityName !== facilityFilter) return false;
+    return true;
+  });
+}
+function populateFacilityFilterOptions(){
+  const select = document.getElementById("analyticsFacility");
+  const current = select.value;
+  const facilities = [...new Set(window.referralDB.map(r => r.facilityName).filter(Boolean))].sort();
+  select.innerHTML = '<option value="">All Facilities</option>' +
+    facilities.map(f => `<option value="${escapeHTML(f)}">${escapeHTML(f)}</option>`).join("");
+  if (facilities.includes(current)) select.value = current;
+}
+function computeAnalytics(records){
+  const uniquePatients = new Set(records.map(r => r.id));
+  const phenotypeCounts = {}, infectionCounts = {}, feedingCounts = {}, immunizationCounts = {};
+  let edemaCount = 0, muacSum = 0, muacN = 0, whzSum = 0, whzN = 0;
+  const monthlyAdmissions = {};
+  records.forEach(r => {
+    phenotypeCounts[r.phenotype] = (phenotypeCounts[r.phenotype] || 0) + 1;
+    if (r.infection && r.infection !== "None Detected") {
+      r.infection.split(", ").forEach(inf => { infectionCounts[inf] = (infectionCounts[inf] || 0) + 1; });
+    }
+    feedingCounts[r.breastfeedingStatus || "N/A"] = (feedingCounts[r.breastfeedingStatus || "N/A"] || 0) + 1;
+    immunizationCounts[r.immunizationStatus || "N/A"] = (immunizationCounts[r.immunizationStatus || "N/A"] || 0) + 1;
+    if (r.edema) edemaCount++;
+    if (Number.isFinite(r.muac)) { muacSum += r.muac; muacN++; }
+    if (Number.isFinite(r.whz)) { whzSum += r.whz; whzN++; }
+    const month = (r.assessmentDate || "").slice(0, 7);
+    if (month) monthlyAdmissions[month] = (monthlyAdmissions[month] || 0) + 1;
+  });
+  let urgentCount = 0, urgentCompletedCount = 0;
+  records.forEach(r => {
+    if (r.triagePathway && /^URGENT|^Urgent/.test(r.triagePathway)) {
+      urgentCount++;
+      if (r.referralStatus === "Completed") urgentCompletedCount++;
+    }
+  });
+  const referralCompletionRate = urgentCount ? Math.round((urgentCompletedCount / urgentCount) * 100) : null;
+  return {
+    totalVisits: records.length, totalPatients: uniquePatients.size,
+    phenotypeCounts, infectionCounts, feedingCounts, immunizationCounts, edemaCount,
+    avgMuac: muacN ? (muacSum / muacN).toFixed(1) : "N/A",
+    avgWhz: whzN ? (whzSum / whzN).toFixed(2) : "N/A",
+    monthlyAdmissions, urgentCount, urgentCompletedCount, referralCompletionRate
+  };
+}
+/* doc param lets these draw onto canvases in the popup window OR
+   onto hidden temp canvases in the main document (for PDF export) */
+function drawBarChart(canvasEl, dataObj, title, barColor){
+  const ctx = canvasEl.getContext("2d");
+  const width = canvasEl.width, height = canvasEl.height;
+  ctx.clearRect(0, 0, width, height);
+  const labels = Object.keys(dataObj), values = Object.values(dataObj);
+  ctx.fillStyle = "#1a365d"; ctx.font = "bold 13px Arial"; ctx.fillText(title, 10, 20);
+  if (!labels.length) {
+    ctx.fillStyle = "#a0aec0"; ctx.font = "12px Arial";
+    ctx.fillText("No data for selected range", 10, height / 2);
+    return;
+  }
+  const padding = { top: 35, right: 20, bottom: 70, left: 35 };
+  const plotW = width - padding.left - padding.right, plotH = height - padding.top - padding.bottom;
+  const maxVal = Math.max(...values, 1);
+  const gap = plotW / labels.length, barW = gap * 0.6;
+  labels.forEach((label, i) => {
+    const value = values[i], barH = (value / maxVal) * plotH;
+    const x = padding.left + i * gap + (gap - barW) / 2, y = padding.top + plotH - barH;
+    ctx.fillStyle = barColor || "#2b6cb0";
+    ctx.fillRect(x, y, barW, barH);
+    ctx.fillStyle = "#2d3748"; ctx.font = "bold 12px Arial"; ctx.textAlign = "center";
+    ctx.fillText(String(value), x + barW / 2, y - 6);
+    ctx.save();
+    ctx.translate(x + barW / 2, padding.top + plotH + 12);
+    ctx.rotate(-Math.PI / 6);
+    ctx.textAlign = "right"; ctx.font = "10px Arial"; ctx.fillStyle = "#4a5568";
+    ctx.fillText(label.length > 20 ? label.slice(0, 20) + "…" : label, 0, 0);
+    ctx.restore();
+  });
+  ctx.textAlign = "left";
+}
+function drawTrendChart(canvasEl, dataObj, title){
+  const ctx = canvasEl.getContext("2d");
+  const width = canvasEl.width, height = canvasEl.height;
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = "#1a365d"; ctx.font = "bold 13px Arial"; ctx.fillText(title, 10, 20);
+  const months = Object.keys(dataObj).sort();
+  if (!months.length) {
+    ctx.fillStyle = "#a0aec0"; ctx.font = "12px Arial";
+    ctx.fillText("No data for selected range", 10, height / 2);
+    return;
+  }
+  const values = months.map(m => dataObj[m]);
+  const padding = { top: 35, right: 20, bottom: 45, left: 35 };
+  const plotW = width - padding.left - padding.right, plotH = height - padding.top - padding.bottom;
+  const maxVal = Math.max(...values, 1);
+  const getX = i => months.length === 1 ? padding.left + plotW / 2 : padding.left + (i / (months.length - 1)) * plotW;
+  const getY = v => padding.top + plotH - (v / maxVal) * plotH;
+  ctx.strokeStyle = "#276749"; ctx.lineWidth = 2;
+  ctx.beginPath();
+  months.forEach((m, i) => { const x = getX(i), y = getY(values[i]); i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); });
+  ctx.stroke();
+  months.forEach((m, i) => {
+    const x = getX(i), y = getY(values[i]);
+    ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fillStyle = "#276749"; ctx.fill();
+    ctx.fillStyle = "#2d3748"; ctx.font = "bold 11px Arial"; ctx.textAlign = "center";
+    ctx.fillText(String(values[i]), x, y - 10);
+    ctx.fillStyle = "#718096"; ctx.font = "10px Arial";
+    ctx.fillText(m, x, height - 12);
+  });
+  ctx.textAlign = "left";
+}
+/* Computes stats and opens a live results window with charts.
+   Also stashes the result so PDF/CSV export can reuse it. */
+function runAnalytics(){
+  const from = document.getElementById("analyticsFrom").value;
+  const to = document.getElementById("analyticsTo").value;
+  const facilityFilter = document.getElementById("analyticsFacility").value;
+  const records = filterRecordsByDateRange(from, to, facilityFilter);
+  if (!records.length) {
+    alert("No records found in the selected date range.");
+    return;
+  }
+  const stats = computeAnalytics(records);
+  window._lastAnalytics = { stats, from, to, records };
+  const win = window.open("", "_blank", "width=1100,height=850,scrollbars=yes");
+  if (!win) { alert("Popup was blocked. Please allow popups for this application."); return; }
+  win.document.write(`
+    <!DOCTYPE html><html><head><meta charset="UTF-8"><title>FAST Analytics Results</title>
+    <style>
+      body{font-family:Arial,sans-serif;background:#f7fafc;margin:0;padding:20px;color:#2d3748;}
+      .header{text-align:center;margin-bottom:20px;}
+      .header h1{color:#1a365d;margin:0;font-size:22px;}
+      .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+      .card{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:14px;text-align:center;}
+      .card strong{display:block;color:#718096;font-size:11px;text-transform:uppercase;margin-bottom:6px;}
+      .card span{font-size:20px;font-weight:bold;color:#1a365d;}
+      .charts{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+      canvas{background:#fff;border:1px solid #e2e8f0;border-radius:8px;width:100%;height:auto;}
+    </style></head><body>
+      <div class="header"><h1>FAST Analytics Results</h1>
+        <p>Period: ${from || "Start"} to ${to || "Present"}</p></div>
+      <div class="summary">
+        <div class="card"><strong>Total Visits</strong><span>${stats.totalVisits}</span></div>
+        <div class="card"><strong>Unique Patients</strong><span>${stats.totalPatients}</span></div>
+        <div class="card"><strong>Edema (SAM) Cases</strong><span>${stats.edemaCount}</span></div>
+        <div class="card"><strong>Average MUAC</strong><span>${stats.avgMuac} mm</span></div>
+        <div class="card"><strong>Average WHZ</strong><span>${stats.avgWhz}</span></div>
+        <div class="card"><strong>Records Analyzed</strong><span>${records.length}</span></div>
+        <div class="card"><strong>Urgent Referrals Completed</strong><span>${stats.urgentCompletedCount}/${stats.urgentCount} ${stats.referralCompletionRate !== null ? "(" + stats.referralCompletionRate + "%)" : ""}</span></div>
+      </div>
+      <div class="charts">
+        <canvas id="chartPhenotype" width="500" height="320"></canvas>
+        <canvas id="chartInfection" width="500" height="320"></canvas>
+        <canvas id="chartFeeding" width="500" height="320"></canvas>
+        <canvas id="chartAdmissions" width="500" height="320"></canvas>
+      </div>
+    </body></html>
+  `);
+  win.document.close();
+  win.onload = function(){
+    drawBarChart(win.document.getElementById("chartPhenotype"), stats.phenotypeCounts, "Phenotype Distribution", "#2b6cb0");
+    drawBarChart(win.document.getElementById("chartInfection"), stats.infectionCounts, "Infection Frequency", "#c53030");
+    drawBarChart(win.document.getElementById("chartFeeding"), stats.feedingCounts, "Feeding Status Breakdown", "#276749");
+    drawTrendChart(win.document.getElementById("chartAdmissions"), stats.monthlyAdmissions, "Visits Logged Per Month");
+  };
+}
+function generateAnalyticsPDF(){
+  if (!window._lastAnalytics) {
+    alert("Click 'Generate Analytics' first, then export the PDF.");
+    return;
+  }
+  const { stats, from } = window._lastAnalytics;
+  const to = window._lastAnalytics.to;
+  const facility = getFacilityInformation();
+  const makeChartImage = (dataObj, title, color, isTrend) => {
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = 700; tempCanvas.height = 320;
+    if (isTrend) drawTrendChart(tempCanvas, dataObj, title);
+    else drawBarChart(tempCanvas, dataObj, title, color);
+    return tempCanvas.toDataURL("image/png");
+  };
+  const chartImages = [
+    makeChartImage(stats.phenotypeCounts, "Phenotype Distribution", "#2b6cb0"),
+    makeChartImage(stats.infectionCounts, "Infection Frequency", "#c53030"),
+    makeChartImage(stats.feedingCounts, "Feeding Status Breakdown", "#276749"),
+    makeChartImage(stats.monthlyAdmissions, "Visits Logged Per Month", null, true)
+  ].map(src => `<img src="${src}" style="width:100%;margin-bottom:15px;">`).join("");
+  const tableFromCounts = (obj, colName) => {
+    const rows = Object.entries(obj).map(([k, v]) => `<tr><td>${escapeHTML(k)}</td><td>${v}</td></tr>`).join("");
+    return `<table><thead><tr><th>${colName}</th><th>Count</th></tr></thead><tbody>${rows || '<tr><td colspan=2>No data</td></tr>'}</tbody></table>`;
+  };
+  const content = `
+    <div class="header">
+      <h1>${escapeHTML(facility.name)}</h1>
+      <div class="meta">${escapeHTML(facility.location)}</div>
+      <h2>FAST Analytics Report</h2>
+      <strong>Period: ${from || "Start"} to ${to || "Present"}</strong>
+    </div>
+    <p class="meta">Responsible Health Worker: <strong>${escapeHTML(facility.healthWorker)}</strong><br>
+      Report Generated: ${new Date().toLocaleString()}<br>
+      Total Visits: ${stats.totalVisits} | Unique Patients: ${stats.totalPatients}<br>
+      Urgent Referrals Completed: ${stats.urgentCompletedCount} / ${stats.urgentCount} ${stats.referralCompletionRate !== null ? "(" + stats.referralCompletionRate + "%)" : ""}</p>
+    <div class="section"><h2>Summary Charts</h2>${chartImages}</div>
+    <div class="section"><h2>Phenotype Breakdown</h2>${tableFromCounts(stats.phenotypeCounts, "Phenotype")}</div>
+    <div class="section"><h2>Infection Breakdown</h2>${tableFromCounts(stats.infectionCounts, "Infection")}</div>
+    <div class="section"><h2>Feeding Status Breakdown</h2>${tableFromCounts(stats.feedingCounts, "Feeding Status")}</div>
+    <div class="section"><h2>Immunization Breakdown</h2>${tableFromCounts(stats.immunizationCounts, "Immunization Status")}</div>
+    <div class="footer">FAST Referral Facility Management System — Analytics Report</div>`;
+  openPrintWindow("FAST Analytics Report", content);
+}
+/* ============================================================
+   CSV / EXCEL EXPORT — asks about identifiers first
+   ============================================================ */
+function exportRecordsCSV(){
+  if (!window.referralDB.length) { alert("No records to export."); return; }
+  const includeIdentifiers = confirm(
+    "Include patient Name and Triage ID in the export?\n\n" +
+    "OK = Yes, include identifiers (clinical/internal use).\n" +
+    "Cancel = No, exclude Name and Triage ID (anonymized, for research use)."
+  );
+  const from = document.getElementById("analyticsFrom").value;
+  const to = document.getElementById("analyticsTo").value;
+  const records = filterRecordsByDateRange(from, to);
+  if (!records.length) { alert("No records found in the selected date range."); return; }
+  const baseHeaders = ["Date","Sex","Age(months)","Phenotype","MUAC","WAZ","HAZ","WHZ","Edema","LowBirthWeight","BreastfeedingStatus","Infections","Hemoglobin","RUTF","ImmunizationStatus","TriagePathway","RecordedBy"];
+  const headers = includeIdentifiers ? ["TriageID","PatientName", ...baseHeaders] : baseHeaders;
+  const csvEscape = v => {
+    const s = String(v ?? "");
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const rows = records.map(r => {
+    const base = [r.date, r.sex, r.age, r.phenotype, r.muac, r.waz ?? "", r.haz ?? "", r.whz ?? "",
+      r.edema ? "Yes" : "No", r.lowBirthWeight ? "Yes" : "No", r.breastfeedingStatus, r.infection,
+      r.hgb ?? "", r.rutf, r.immunizationStatus, r.triagePathway, r.recordedBy];
+    const full = includeIdentifiers ? [r.id, r.name, ...base] : base;
+    return full.map(csvEscape).join(",");
+  });
+  const csvContent = [headers.join(","), ...rows].join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  const label = includeIdentifiers ? "Identified" : "Anonymized";
+  link.download = `FAST_Export_${label}_${new Date().toISOString().slice(0,10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+  setStatus(`Exported ${records.length} record(s) as ${label.toLowerCase()} CSV. Opens directly in Excel.`);
+}
+/* INITIALIZATION */
+window.addEventListener("DOMContentLoaded", function(){
+  initializeDatabase();
+  loadFacilityInformation();
+  sortDatabase();
+  renderMasterLedger();
+  updateBackupBanner();
+  updateConnectivityBadge();
+  window.addEventListener("online", updateConnectivityBadge);
+  window.addEventListener("offline", updateConnectivityBadge);
+  document.getElementById("saveBtn").addEventListener("click", saveReferralVisit);
+  document.getElementById("copyLastVisitBtn").addEventListener("click", copyFromLastVisit);
+  document.getElementById("masterTableBody").addEventListener("click", function(e){
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+    if (btn.dataset.action === "edit") startEditRecord(btn.dataset.visitId);
+    if (btn.dataset.action === "delete") deleteRecord(btn.dataset.visitId);
+  });
+  document.getElementById("cancelEditBtn").addEventListener("click", function(){
+    exitEditMode();
+    clearVisitForm();
+  });
+  document.getElementById("newIdBtn").addEventListener("click", function(){
+    document.getElementById("childId").value = "";
+    autoFillNextTriageID();
+  });
+ document.getElementById("searchQuery").addEventListener("input", searchDatabase);
+  document.getElementById("exportBtn").addEventListener("click", exportDatabase);
+  document.getElementById("importBtn").addEventListener("click", () => document.getElementById("importFile").click());
+  document.getElementById("importFile").addEventListener("change", importDatabase);
+  document.getElementById("generateLedgerPdfBtn").addEventListener("click", generateLedgerPDF);
+  document.getElementById("generatePatientPdfBtn").addEventListener("click", generatePatientPDF);
+  document.getElementById("clearBtn").addEventListener("click", clearDatabase);
+  ["facilityName","facilityLocation","healthWorkerName","idPrefix"].forEach(id => {
+    document.getElementById(id).addEventListener("change", saveFacilityInformation);
+    document.getElementById(id).addEventListener("blur", saveFacilityInformation);
+  });
+  document.getElementById("idPrefix").addEventListener("blur", function(){
+    if (document.getElementById("childId").value.trim() === "") autoFillNextTriageID();
+  });
+  document.getElementById("assessmentDate").value = todayISO();
+  const savedFacility = document.getElementById("healthWorkerName").value;
+  if (savedFacility) document.getElementById("recordedBy").value = savedFacility;
+  document.getElementById("childId").addEventListener("blur", autofillFromExistingPatient);
+  document.getElementById("assessmentDate").value = todayISO();
+  autoFillNextTriageID();
+  ["sex","dob","assessmentDate","weight","height","muac","hgb","edema","breastfeedingStatus","immunizationStatus"].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", updateLivePreview);
+    el.addEventListener("change", updateLivePreview);
+  });
+  document.querySelectorAll(".inf-check").forEach(el => el.addEventListener("change", updateLivePreview));
+  updateLivePreview();
+document.getElementById("runAnalyticsBtn").addEventListener("click", runAnalytics);
+document.getElementById("analyticsPdfBtn").addEventListener("click", generateAnalyticsPDF);
+document.getElementById("csvExportBtn").addEventListener("click", exportRecordsCSV);
+document.querySelectorAll(".section-toggle").forEach(btn => {
+  btn.addEventListener("click", function(){
+    const body = document.getElementById(this.dataset.target);
+    const chevron = this.querySelector(".chevron");
+    body.classList.toggle("open");
+    chevron.classList.toggle("open");
+  });
+  populateFacilityFilterOptions();
+});
+});
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
