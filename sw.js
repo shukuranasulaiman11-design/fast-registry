@@ -7,14 +7,14 @@
  * than just a bookmark.
  *
  * IMPORTANT: update CACHE_NAME (e.g. 'fast-v2') any time you change
- * registry.html or any cached file, so returning users get the new
+ * index.html or any cached file, so returning users get the new
  * version instead of a stale cached copy.
  */
 
 const CACHE_NAME = 'fast-registry-v1';
 
 const FILES_TO_CACHE = [
-  './registry.html',
+  './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -52,7 +52,7 @@ self.addEventListener('fetch', (event) => {
         // Offline and not cached - for navigation requests, fall back
         // to the main app shell rather than showing a browser error page
         if (event.request.mode === 'navigate') {
-          return caches.match('./registry.html');
+          return caches.match('./index.html');
         }
       });
     })
