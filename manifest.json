@@ -2,7 +2,7 @@
   "name": "FAST Referral Facility Management System",
   "short_name": "FAST Registry",
   "description": "Secondary Evaluation, Clinical Phenotyping & Long-Term Treatment Ledger",
-  "start_url": "./registry.html",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",
